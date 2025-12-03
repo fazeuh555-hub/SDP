@@ -1,23 +1,22 @@
 #include "FEHLCD.h"
 #include "FEHUtility.h"
+#include "FEHKeyboard.h"
+
 
 class Main_Menu
 {
 private:
     
         int loads, loads_streak, misses;
-    
+  
 public:
  void play_button();
  void stats_button();
  void credits_button();
  void Instructions_button();
  void Main_Screen ();
- 
-
-
-
-
+ void chill_mode ();
+ void normal_mode ();
 }
 ;
 
@@ -91,7 +90,17 @@ int main() {
     LCD.SetBackgroundColor(BLACK);
     LCD.Clear();
     LCD.SetFontColor (WHITE);
-    LCD.WriteAt ("Gameplay Here",120,120);
+    LCD.WriteAt ("Select Difficulty",110,25);
+    LCD.SetFontColor (WHITE);
+    LCD.DrawRectangle (50,125,50,22);
+    LCD.FillRectangle (50,125,50,22);
+    LCD.SetFontColor (BLACK);
+    LCD.WriteAt ("Chill",60,130);
+    LCD.SetFontColor (WHITE);
+    LCD.DrawRectangle (225,125,50,22);
+    LCD.FillRectangle (225,125,50,22);
+    LCD.SetFontColor (BLACK);
+    LCD.WriteAt ("Normal",232,130);
     LCD.SetFontColor (WHITE);
     LCD.DrawRectangle (135,200,50,22);
     LCD.FillRectangle (135,200,50,22);
@@ -106,6 +115,15 @@ int main() {
             {
                 g1.Main_Screen();
             }
+        if((x >= 50 && x <= 100) && (y >= 125 && y <= 147))
+            {
+                g1.chill_mode();
+                
+            }
+        if((x >= 225 && x <= 275) && (y >= 125 && y <= 147))
+            {
+                g1.normal_mode();
+            }
     }
 } 
 
@@ -116,13 +134,13 @@ void Main_Menu::stats_button()
     LCD.SetBackgroundColor(BLUE);
     LCD.Clear(); 
     LCD.SetFontColor (WHITE);
-    LCD.WriteAt ("Stats",110,25);
+    LCD.WriteAt ("Stats",140,25);
     LCD.SetFontColor (WHITE);
-    LCD.WriteAt ("Number of Loads completed: 254",73,75);
+    LCD.WriteAt ("Number of Loads completed: 254",70,75);
     LCD.SetFontColor (WHITE);
-    LCD.WriteAt ("Highest streak: 174",110,125);
+    LCD.WriteAt ("Highest streak: 174",105,125);
     LCD.SetFontColor (WHITE);
-    LCD.WriteAt ("Number of misses: 1500",73,175);
+    LCD.WriteAt ("Number of misses: 1500",85,175);
     LCD.SetFontColor (WHITE);
     LCD.DrawRectangle (135,200,50,22);
     LCD.FillRectangle (135,200,50,22);
@@ -150,7 +168,7 @@ void Main_Menu::credits_button()
     LCD.SetFontColor (WHITE);
     LCD.WriteAt ("Game was made by:",110,50);
     LCD.SetFontColor (WHITE);
-    LCD.WriteAt ("Faiza Choudhry and Michael Tang",73,100);
+    LCD.WriteAt ("Faiza Choudhry and Michael Tang",70,100);
     LCD.SetFontColor (WHITE);
     LCD.DrawRectangle (135,200,50,22);
     LCD.FillRectangle (135,200,50,22);
@@ -175,8 +193,8 @@ void Main_Menu::Instructions_button()
     float x,y,v,t;
     LCD.SetBackgroundColor(RED);
     LCD.Clear();
-    LCD.WriteAt ("How to play the game",110,25);
-    LCD.WriteAt ("Press right and left buttons to move",73,75);
+    LCD.WriteAt ("How to play the game",105,25);
+    LCD.WriteAt ("Press right and left buttons to move",60,75);
     LCD.WriteAt ("Press up to jump",110,125);
     LCD.WriteAt ("Press center to load machine",73,175);
     LCD.SetFontColor (WHITE);
@@ -258,3 +276,42 @@ void Main_Menu :: Main_Screen ()
     
 }
  
+void Main_Menu :: chill_mode () 
+{
+    int x,y,r;
+    x=160,y=195,r=5;
+    LCD.SetBackgroundColor(WHITE);
+    LCD.Clear();
+    LCD.SetFontColor (BLACK);
+    LCD.DrawCircle(x=160,y=195,r=5);
+    LCD.FillCircle(x=160,y=195,r=5);
+    LCD.SetFontColor (BLACK);
+    LCD.DrawLine(0,200,320,200);
+    while (true){
+        LCD.Update();
+        if(Keyboard.isPressed(KEY_RIGHT))
+        {
+            
+            
+            LCD.SetFontColor (WHITE);
+            LCD.DrawCircle(x,y,r);
+            LCD.FillCircle(x,y,r);
+            x = x + 50;
+            LCD.SetFontColor (BLACK);
+            LCD.DrawCircle(x,y,r);
+            LCD.FillCircle(x,y,r); 
+        }
+    }
+}
+
+void Main_Menu :: normal_mode () 
+{
+    int x,y,r;
+    LCD.SetBackgroundColor(WHITE);
+    LCD.Clear();
+    LCD.SetFontColor (BLACK);
+    LCD.DrawCircle(x=160,y=195,r=5);
+    LCD.FillCircle(x=160,y=195,r=5);
+    LCD.SetFontColor (BLACK);
+    LCD.DrawLine(0,200,320,200);
+}
