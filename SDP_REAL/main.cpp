@@ -6,7 +6,7 @@
 class Main_Menu
 {
 private:
-    
+        int x_move,y_move,r_move;
         int loads, loads_streak, misses;
   
 public:
@@ -17,6 +17,8 @@ public:
  void Main_Screen ();
  void chill_mode ();
  void normal_mode ();
+ void jump_up();
+ void gravity_down();
 }
 ;
 
@@ -278,40 +280,128 @@ void Main_Menu :: Main_Screen ()
  
 void Main_Menu :: chill_mode () 
 {
-    int x,y,r;
-    x=160,y=195,r=5;
+    x_move=160,y_move=195,r_move=5;
     LCD.SetBackgroundColor(WHITE);
     LCD.Clear();
     LCD.SetFontColor (BLACK);
-    LCD.DrawCircle(x=160,y=195,r=5);
-    LCD.FillCircle(x=160,y=195,r=5);
+    LCD.DrawCircle(x_move=160,y_move=195,r_move=5);
+    LCD.FillCircle(x_move=160,y_move=195,r_move=5);
     LCD.SetFontColor (BLACK);
-    LCD.DrawLine(0,200,320,200);
+    LCD.DrawLine(0,201,320,201);
     while (true){
         LCD.Update();
-        if(Keyboard.isPressed(KEY_RIGHT))
+        if(Keyboard.isPressed(KEY_RIGHT)&&(x_move<=312))
         {
             
+            LCD.SetFontColor (WHITE);
+            LCD.DrawCircle(x_move,y_move,r_move);
+            LCD.FillCircle(x_move,y_move,r_move);
+            x_move = x_move + 3;
+            LCD.SetFontColor (BLACK);
+            LCD.DrawCircle(x_move,y_move,r_move);
+            LCD.FillCircle(x_move,y_move,r_move);
+            Sleep(1); 
+        }
+        if(Keyboard.isPressed(KEY_LEFT)&&(x_move>=8))
+        {
             
             LCD.SetFontColor (WHITE);
-            LCD.DrawCircle(x,y,r);
-            LCD.FillCircle(x,y,r);
-            x = x + 50;
+            LCD.DrawCircle(x_move,y_move,r_move);
+            LCD.FillCircle(x_move,y_move,r_move);
+            x_move = x_move - 3;
             LCD.SetFontColor (BLACK);
-            LCD.DrawCircle(x,y,r);
-            LCD.FillCircle(x,y,r); 
+            LCD.DrawCircle(x_move,y_move,r_move);
+            LCD.FillCircle(x_move,y_move,r_move); 
+            Sleep(1);
+        }
+         if(Keyboard.isPressed(KEY_UP))
+        {
+            Main_Menu g1; 
+            LCD.Update();
+            g1.jump_up();
+            Sleep(1000);
+            g1.gravity_down();
+            Sleep (1000);
+
         }
     }
 }
 
 void Main_Menu :: normal_mode () 
 {
-    int x,y,r;
+    x_move=160,y_move=195,r_move=5;
     LCD.SetBackgroundColor(WHITE);
     LCD.Clear();
     LCD.SetFontColor (BLACK);
-    LCD.DrawCircle(x=160,y=195,r=5);
-    LCD.FillCircle(x=160,y=195,r=5);
+    LCD.DrawCircle(x_move=160,y_move=195,r_move=5);
+    LCD.FillCircle(x_move=160,y_move=195,r_move=5);
     LCD.SetFontColor (BLACK);
-    LCD.DrawLine(0,200,320,200);
+    LCD.DrawLine(0,201,320,201);
+    while (true){
+        LCD.Update();
+        if(Keyboard.isPressed(KEY_RIGHT)&&(x_move<=312))
+        {
+            
+            LCD.SetFontColor (WHITE);
+            LCD.DrawCircle(x_move,y_move,r_move);
+            LCD.FillCircle(x_move,y_move,r_move);
+            x_move = x_move + 3;
+            LCD.SetFontColor (BLACK);
+            LCD.DrawCircle(x_move,y_move,r_move);
+            LCD.FillCircle(x_move,y_move,r_move);
+            Sleep(1); 
+        }
+        if(Keyboard.isPressed(KEY_LEFT)&&(x_move>=8))
+        {
+            
+            LCD.SetFontColor (WHITE);
+            LCD.DrawCircle(x_move,y_move,r_move);
+            LCD.FillCircle(x_move,y_move,r_move);
+            x_move = x_move - 3;
+            LCD.SetFontColor (BLACK);
+            LCD.DrawCircle(x_move,y_move,r_move);
+            LCD.FillCircle(x_move,y_move,r_move); 
+            Sleep(1);
+        }
+    }
+}
+
+void Main_Menu :: jump_up()
+{
+    int i;
+        LCD.Update();
+        for (i=0;i<=5;i++)
+        {
+            Sleep(1000);
+            LCD.SetFontColor (WHITE);
+            LCD.DrawCircle(x_move,y_move,r_move);
+            LCD.FillCircle(x_move,y_move,r_move);
+        LCD.Update();    
+            y_move = y_move - 5;
+        LCD.Update();    
+            LCD.SetFontColor (BLACK);
+            LCD.DrawCircle(x_move,y_move,r_move);
+            LCD.FillCircle(x_move,y_move,r_move); 
+        }
+            
+}
+
+
+void Main_Menu :: gravity_down()
+{
+    int i;
+    for (i=0;i>=5;i++)
+    {
+        LCD.Update();
+            LCD.SetFontColor (WHITE);
+            LCD.DrawCircle(x_move,y_move,r_move);
+            LCD.FillCircle(x_move,y_move,r_move);
+        LCD.Update();
+            y_move = y_move + 5;
+        LCD.Update();
+            LCD.SetFontColor (BLACK);
+            LCD.DrawCircle(x_move,y_move,r_move);
+            LCD.FillCircle(x_move,y_move,r_move); 
+            Sleep(1000);
+    }
 }
