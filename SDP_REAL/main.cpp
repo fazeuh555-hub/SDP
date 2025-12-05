@@ -1,12 +1,13 @@
 #include "FEHLCD.h"
 #include "FEHUtility.h"
 #include "FEHKeyboard.h"
+#include "FEHRandom.h"
 
 
 class Main_Menu
 {
 private:
-    
+        int x_move,y_move,r_move;
         int loads, loads_streak, misses;
   
 public:
@@ -17,6 +18,7 @@ public:
  void Main_Screen ();
  void chill_mode ();
  void normal_mode ();
+ void pain_mode ();
 }
 ;
 
@@ -124,6 +126,49 @@ int main() {
             {
                 g1.normal_mode();
             }
+        while(Keyboard.isPressed(KEY_P))
+        {   
+            LCD.Clear();
+            LCD.SetBackgroundColor(WHITE);
+            while(Keyboard.isPressed(KEY_A))
+        {   
+            LCD.Clear();
+            LCD.SetBackgroundColor(BLACK);
+            while(Keyboard.isPressed(KEY_I))
+            
+        {
+            LCD.Clear();
+            LCD.SetBackgroundColor(WHITE);
+            while(Keyboard.isPressed(KEY_N))
+        {
+            LCD.Clear();
+            LCD.SetBackgroundColor(BLACK);
+            while(Keyboard.isPressed(KEY_T))
+        {
+            LCD.Clear();
+            LCD.SetBackgroundColor (WHITE);
+            while(Keyboard.isPressed(KEY_R))
+        {
+            LCD.Clear();
+            LCD.SetBackgroundColor (BLACK);
+            while(Keyboard.isPressed(KEY_A))
+        {
+            LCD.Clear();
+            LCD.SetBackgroundColor (WHITE);
+            while(Keyboard.isPressed(KEY_I))
+        {
+            LCD.Clear();
+            LCD.SetBackgroundColor (BLACK);
+            while(Keyboard.isPressed(KEY_N))
+            {g1.pain_mode();}
+        }    
+        }
+        }
+        }
+        }    
+        }
+        }
+        }    
     }
 } 
 
@@ -278,40 +323,398 @@ void Main_Menu :: Main_Screen ()
  
 void Main_Menu :: chill_mode () 
 {
-    int x,y,r;
-    x=160,y=195,r=5;
+    Main_Menu g1;
+    int playerX = 40;
+    int playerY;
+    int playerW = 14;
+    int playerH = 18;
+    int groundY = 200;
+    playerY = groundY - playerH;
+
+    bool inAir = false;
+    int jumpFrames = 0;
+
+    const int NUM_PILES = 2;
+    int pileX[NUM_PILES];
+    int pileY[NUM_PILES];
+    int pileW = 20;
+    int pileH = 12;
+
+    int machineX = 270;
+    int machineY = groundY - 40;
+    int machineW = 30;
+    int machineH = 40;
+
+    float levelTime = 20.0f;
+    float startTime = TimeNow();
+
+    for (int i = 0; i < NUM_PILES; i++)
+    {
+        pileX[i] = 320 + 40 * i + (Random.RandInt()%40);
+        pileY[i] = groundY - pileH;
+    }
+
     LCD.SetBackgroundColor(WHITE);
     LCD.Clear();
-    LCD.SetFontColor (BLACK);
-    LCD.DrawCircle(x=160,y=195,r=5);
-    LCD.FillCircle(x=160,y=195,r=5);
-    LCD.SetFontColor (BLACK);
-    LCD.DrawLine(0,200,320,200);
-    while (true){
-        LCD.Update();
-        if(Keyboard.isPressed(KEY_RIGHT))
+
+    while (true)
+    {
+        float elapsed = TimeNow() - startTime;
+        float remaining = levelTime - elapsed;
+
+        if (remaining <= 0)
         {
-            
-            
-            LCD.SetFontColor (WHITE);
-            LCD.DrawCircle(x,y,r);
-            LCD.FillCircle(x,y,r);
-            x = x + 50;
-            LCD.SetFontColor (BLACK);
-            LCD.DrawCircle(x,y,r);
-            LCD.FillCircle(x,y,r); 
+            LCD.Clear();
+            LCD.SetFontColor(BLACK);
+            LCD.WriteAt("Time's up!", 110, 90);
+            LCD.WriteAt("Normal Over", 100, 130);
+
+            float tx, ty, tt, tv;
+            while (!LCD.Touch(&tx,&ty)) {}
+            while (LCD.Touch(&tt,&tv)) {}
+            g1.play_button();
+            return;
         }
+
+        if (Keyboard.isPressed(KEY_RIGHT) && playerX + playerW < 320) playerX += 3;
+        if (Keyboard.isPressed(KEY_LEFT) && playerX > 0) playerX -= 3;
+
+        if (Keyboard.isPressed(KEY_UP) && !inAir)
+{
+    inAir = true;
+    jumpFrames = 0;
+}
+
+if (inAir)
+{
+    if (jumpFrames < 12) playerY -= 5;        
+    else if (jumpFrames < 24) playerY += 5;   
+    else {
+        inAir = false;
+        playerY = groundY - playerH;
+    }
+    jumpFrames++;
+}
+
+        for (int i = 0; i < NUM_PILES; i++)
+        {
+            pileX[i] -= 2;
+            if (pileX[i] + pileW < 0) 
+            pileX[i] = 320 + 150 + (Random.RandInt()%100);
+        }
+
+        for (int i = 0; i < NUM_PILES; i++)
+        {
+            bool overlap =
+                !(playerX + playerW < pileX[i] ||
+                  pileX[i] + pileW < playerX ||
+                  playerY + playerH < pileY[i] ||
+                  pileY[i] + pileH < playerY);
+
+            if (overlap)
+            {
+                playerX -= 20;
+                if (playerX < 0) playerX = 0;
+            }
+        }
+
+        bool touching =
+            !(playerX + playerW < machineX ||
+              machineX + machineW < playerX ||
+              playerY + playerH < machineY ||
+              machineY + machineH < playerY);
+
+        if (touching && Keyboard.isPressed(KEY_SPACE))
+        {
+            LCD.Clear();
+            LCD.SetFontColor(BLACK);
+            LCD.WriteAt("Laundry Done!", 80, 90);
+            LCD.WriteAt("Normal Complete!", 60, 130);
+
+            float tx, ty, tt, tv;
+            while (!LCD.Touch(&tx,&ty)) {}
+            while (LCD.Touch(&tt,&tv)) {}
+            g1.play_button();
+            return;
+        }
+
+        LCD.Clear();
+        LCD.SetFontColor(BLACK);
+        LCD.DrawLine(0, groundY, 320, groundY);
+
+        LCD.FillRectangle(playerX, playerY, playerW, playerH);
+
+        for (int i = 0; i < NUM_PILES; i++)
+        {
+            LCD.FillRectangle(pileX[i], pileY[i], pileW, pileH);
+        }
+
+        LCD.DrawRectangle(machineX, machineY, machineW, machineH);
+        LCD.Update();
     }
 }
 
-void Main_Menu :: normal_mode () 
+void Main_Menu::normal_mode()
 {
-    int x,y,r;
+    Main_Menu g1;
+    int playerX = 40;
+    int playerY;
+    int playerW = 14;
+    int playerH = 18;
+    int groundY = 200;
+    playerY = groundY - playerH;
+
+    bool inAir = false;
+    int jumpFrames = 0;
+
+    const int NUM_PILES = 3;
+    int pileX[NUM_PILES];
+    int pileY[NUM_PILES];
+    int pileW = 20;
+    int pileH = 12;
+
+    int machineX = 270;
+    int machineY = groundY - 40;
+    int machineW = 30;
+    int machineH = 40;
+
+    float levelTime = 20.0f;
+    float startTime = TimeNow();
+
+    for (int i = 0; i < NUM_PILES; i++)
+    {
+        pileX[i] = 320 + 40 * i + (Random.RandInt()%40);
+        pileY[i] = groundY - pileH;
+    }
+
     LCD.SetBackgroundColor(WHITE);
     LCD.Clear();
-    LCD.SetFontColor (BLACK);
-    LCD.DrawCircle(x=160,y=195,r=5);
-    LCD.FillCircle(x=160,y=195,r=5);
-    LCD.SetFontColor (BLACK);
-    LCD.DrawLine(0,200,320,200);
+
+    while (true)
+    {
+        float elapsed = TimeNow() - startTime;
+        float remaining = levelTime - elapsed;
+
+        if (remaining <= 0)
+        {
+            LCD.Clear();
+            LCD.SetFontColor(BLACK);
+            LCD.WriteAt("Time's up!", 110, 90);
+            LCD.WriteAt("Normal Over", 100, 130);
+
+            float tx, ty, tt, tv;
+            while (!LCD.Touch(&tx,&ty)) {}
+            while (LCD.Touch(&tt,&tv)) {}
+            g1.play_button();
+            return;
+        }
+
+        if (Keyboard.isPressed(KEY_RIGHT) && playerX + playerW < 320) playerX += 4;
+        if (Keyboard.isPressed(KEY_LEFT) && playerX > 0) playerX -= 4;
+        if (Keyboard.isPressed(KEY_UP) && !inAir)
+{
+    inAir = true;
+    jumpFrames = 0;
+}
+
+if (inAir)
+{
+    if (jumpFrames < 12) playerY -= 5;        
+    else if (jumpFrames < 24) playerY += 5;   
+    else {
+        inAir = false;
+        playerY = groundY - playerH;
+    }
+    jumpFrames++;
+}
+
+        for (int i = 0; i < NUM_PILES; i++)
+        {
+            pileX[i] -= 2;
+            if (pileX[i] + pileW < 0) 
+            pileX[i] = 320 + 150 + (Random.RandInt()%100);
+        }
+
+        for (int i = 0; i < NUM_PILES; i++)
+        {
+            bool overlap =
+                !(playerX + playerW < pileX[i] ||
+                  pileX[i] + pileW < playerX ||
+                  playerY + playerH < pileY[i] ||
+                  pileY[i] + pileH < playerY);
+
+            if (overlap)
+            {
+                playerX -= 20;
+                if (playerX < 0) playerX = 0;
+            }
+        }
+
+        bool touching =
+            !(playerX + playerW < machineX ||
+              machineX + machineW < playerX ||
+              playerY + playerH < machineY ||
+              machineY + machineH < playerY);
+
+        if (touching && Keyboard.isPressed(KEY_SPACE))
+        {
+            LCD.Clear();
+            LCD.SetFontColor(BLACK);
+            LCD.WriteAt("Laundry Done!", 80, 90);
+            LCD.WriteAt("Normal Complete!", 60, 130);
+
+            float tx, ty, tt, tv;
+            while (!LCD.Touch(&tx,&ty)) {}
+            while (LCD.Touch(&tt,&tv)) {}
+            g1.play_button();
+            return;
+        }
+
+        LCD.Clear();
+        LCD.SetFontColor(BLACK);
+        LCD.DrawLine(0, groundY, 320, groundY);
+
+        LCD.FillRectangle(playerX, playerY, playerW, playerH);
+
+        for (int i = 0; i < NUM_PILES; i++)
+        {
+            LCD.FillRectangle(pileX[i], pileY[i], pileW, pileH);
+        }
+
+        LCD.DrawRectangle(machineX, machineY, machineW, machineH);
+        LCD.Update();
+    }
+}
+
+
+void Main_Menu::pain_mode()
+{
+    Main_Menu g1;
+    int playerX = 40;
+    int playerY;
+    int playerW = 14;
+    int playerH = 18;
+    int groundY = 200;
+    playerY = groundY - playerH;
+
+    bool inAir = false;
+    int jumpFrames = 0;
+
+    const int NUM_PILES = 4;
+    int pileX[NUM_PILES];
+    int pileY[NUM_PILES];
+    int pileW = 20;
+    int pileH = 12;
+
+    int machineX = 270;
+    int machineY = groundY - 40;
+    int machineW = 30;
+    int machineH = 40;
+
+    float levelTime = 20.0f;
+    float startTime = TimeNow();
+
+    for (int i = 0; i < NUM_PILES; i++)
+    {
+        pileX[i] = 320 + 40 * i + (Random.RandInt()%40);
+        pileY[i] = groundY - pileH;
+    }
+
+    LCD.SetBackgroundColor(WHITE);
+    LCD.Clear();
+
+    while (true)
+    {
+        float elapsed = TimeNow() - startTime;
+        float remaining = levelTime - elapsed;
+
+        if (remaining <= 0)
+        {
+            LCD.Clear();
+            LCD.SetFontColor(BLACK);
+            LCD.WriteAt("Time's up!", 110, 90);
+            LCD.WriteAt("Normal Over", 100, 130);
+
+            float tx, ty, tt, tv;
+            while (!LCD.Touch(&tx,&ty)) {}
+            while (LCD.Touch(&tt,&tv)) {}
+            g1.play_button();
+            return;
+        }
+
+        if (Keyboard.isPressed(KEY_RIGHT) && playerX + playerW < 320) playerX += 4;
+        if (Keyboard.isPressed(KEY_LEFT) && playerX > 0) playerX -= 4;
+        if (Keyboard.isPressed(KEY_UP) && !inAir)
+{
+    inAir = true;
+    jumpFrames = 0;
+}
+
+if (inAir)
+{
+    if (jumpFrames < 12) playerY -= 7;        
+    else if (jumpFrames < 24) playerY += 7;   
+    else {
+        inAir = false;
+        playerY = groundY - playerH;
+    }
+    jumpFrames++;
+}
+
+        for (int i = 0; i < NUM_PILES; i++)
+        {
+            pileX[i] -= 5;
+            if (pileX[i] + pileW < 0) 
+            pileX[i] = 320 + 150 + (Random.RandInt()%100);
+        }
+
+        for (int i = 0; i < NUM_PILES; i++)
+        {
+            bool overlap =
+                !(playerX + playerW < pileX[i] ||
+                  pileX[i] + pileW < playerX ||
+                  playerY + playerH < pileY[i] ||
+                  pileY[i] + pileH < playerY);
+
+            if (overlap)
+            {
+                playerX -= 20;
+                if (playerX < 0) playerX = 0;
+            }
+        }
+
+        bool touching =
+            !(playerX + playerW < machineX ||
+              machineX + machineW < playerX ||
+              playerY + playerH < machineY ||
+              machineY + machineH < playerY);
+
+        if (touching && Keyboard.isPressed(KEY_SPACE))
+        {
+            LCD.Clear();
+            LCD.SetFontColor(BLACK);
+            LCD.WriteAt("Laundry Done!", 80, 90);
+            LCD.WriteAt("Normal Complete!", 60, 130);
+
+            float tx, ty, tt, tv;
+            while (!LCD.Touch(&tx,&ty)) {}
+            while (LCD.Touch(&tt,&tv)) {}
+            g1.play_button();
+            return;
+        }
+
+        LCD.Clear();
+        LCD.SetFontColor(BLACK);
+        LCD.DrawLine(0, groundY, 320, groundY);
+
+        LCD.FillRectangle(playerX, playerY, playerW, playerH);
+
+        for (int i = 0; i < NUM_PILES; i++)
+        {
+            LCD.FillRectangle(pileX[i], pileY[i], pileW, pileH);
+        }
+
+        LCD.DrawRectangle(machineX, machineY, machineW, machineH);
+        LCD.Update();
+    }
 }
