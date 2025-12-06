@@ -1,0 +1,84 @@
+for stats page: wasnt sure if we did keyboard or touch but this is for keyboard
+oid Main_Menu::stats_button()
+{
+    float x, y, t, v;
+    int selected_button = 0;
+
+    //set the stats screen background and clear any previous frame
+    LCD.SetBackgroundColor(BLUE);
+    LCD.Clear();
+
+    //draw the title
+    LCD.SetFontColor(WHITE);
+    LCD.SetFontScale(1.0);
+    LCD.WriteAt("stats", 135, 20);
+
+    //draw the text labels and values
+    LCD.SetFontScale(0.5);
+    LCD.WriteAt("loads done:", 40, 70);
+    LCD.WriteAt(loads, 200, 70);
+
+    LCD.WriteAt("misses:", 40, 110);
+    LCD.WriteAt(misses, 200, 110);
+
+    LCD.WriteAt("highest streak:", 40, 150);
+    LCD.WriteAt(loads_streak, 200, 150);
+
+    //main loop waits for keyboard input
+    while(true)
+    {
+        //clear the button area each frame
+        LCD.SetFontColor(WHITE);
+        LCD.DrawRectangle(60, 190, 100, 25);
+        LCD.FillRectangle(60, 190, 100, 25);
+
+        LCD.DrawRectangle(180, 190, 80, 25);
+        LCD.FillRectangle(180, 190, 80, 25);
+
+        //draw labels on buttons
+        LCD.SetFontColor(BLACK);
+        LCD.SetFontScale(0.5);
+        LCD.WriteAt("play again", 70, 197);
+        LCD.WriteAt("quit", 205, 197);
+
+        //highlight the selected button with an outline
+        LCD.SetFontColor(RED);
+        if(selected_button == 0)
+        {
+            LCD.DrawRectangle(58, 188, 104, 29);
+        }
+        else
+        {
+            LCD.DrawRectangle(178, 188, 84, 29);
+        }
+
+        LCD.Update();
+
+        //read keyboard input
+        if(Keyboard.IsPressed(KEY_LEFT))
+        {
+            selected_button = 0;
+            Sleep(0.2);
+        }
+
+        if(Keyboard.IsPressed(KEY_RIGHT))
+        {
+            selected_button = 1;
+            Sleep(0.2);
+        }
+
+        if(Keyboard.IsPressed(KEY_CENTER))
+        {
+            if(selected_button == 0)
+            {
+                play_button();
+                return;
+            }
+            else
+            {
+                Main_Screen();
+                return;
+            }
+        }
+    }
+}
