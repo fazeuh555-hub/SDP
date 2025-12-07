@@ -7,7 +7,7 @@
 class Main_Menu
 {
 private:
-        int loads=0, loads_streak, misses;
+        int loads=0, loads_streak=0, misses=0;
         float velocityY = 0.0f;
         float gravity = 0.4f;
         float jumpStrength = -7.0f;
@@ -19,7 +19,8 @@ private:
         bool inAir = false;
         int pileW = 20;
         int pileH = 12;
-        static const int NUM_PILES = 2;
+        static const int NUM_PILES = 6;
+        static const int NUM_Person = 4;
         int machineX = 270;
         int machineY = groundY - 40;
         int machineW = 30;
@@ -28,7 +29,6 @@ private:
         int pileY[NUM_PILES];
         int personW = 12;
         int personH = 20;
-        static const int NUM_Person = 1;
         int PersonX[NUM_Person];
         int PersonY[NUM_Person];
         // Falling object
@@ -42,6 +42,16 @@ private:
         int fallRectH = 7;
         float fallTimer;        // counts how long rectangle has been on the ground
         float fallDuration = 3;
+        int activeMachine;
+        float machineTimer;
+        // --- Difficulty parameters ---
+        float playerSpeed;
+        float jumpMultiplier;
+        float pileSpeed;
+        float personSpeed;
+        float machineDuration;
+        int numPiles;
+        int numPeople;
         
 
         
@@ -63,8 +73,10 @@ public:
 void people();
 void updateFallingObject(float a);
 void drawFallingObject();
-}
-;
+void score_keeping(float a);
+void setDifficulty(std::string mode);
+void code_screen();
+};
 
 
 
@@ -81,7 +93,7 @@ int main() {
 
  void Main_Menu::play_button()
 {
-    Main_Menu g1;
+    
     float x,y,v,t;
     LCD.SetBackgroundColor(BLACK);
     LCD.Clear();
@@ -103,30 +115,146 @@ int main() {
     LCD.SetFontScale(0.5);
     LCD.SetFontColor (BLACK);
     LCD.WriteAt ("Back",147,205);
+    LCD.SetFontColor (WHITE);
+    LCD.DrawRectangle (137,125,50,22);
+    LCD.FillRectangle (137,125,50,22);
+    LCD.SetFontColor (BLACK);
+    LCD.WriteAt ("Code?",147,130);
     while(true)
     {
         while (!LCD.Touch(&x,&y)) {};
         while (LCD.Touch(&t,&v)) {};
         if((x >= 135 && x <= 185) && (y >= 200 && y <= 222))
             {
-                g1.Main_Screen();
+                Main_Screen();
             }
         if((x >= 50 && x <= 100) && (y >= 125 && y <= 147))
             {
-                g1.chill_mode();
+                chill_mode();
                 
             }
         if((x >= 225 && x <= 275) && (y >= 125 && y <= 147))
             {
-                g1.normal_mode();
+                normal_mode();
+            }
+        if((x >= 137 && x <= 187) && (y >= 125 && y <= 147))
+            {
+                code_screen();
             }
 }
 }
 
+void Main_Menu::code_screen()
+{
+    LCD.Clear();
+    LCD.SetFontColor(WHITE);
+    LCD.WriteAt("There is no code", 113, 20);
+
+    char code[30] = "";
+    int index = 0;
+
+    // Keyboard keys (27 keys total)
+    const char* keys[3][9] = {
+        {"A","B","C","D","E","F","G","H","I"},
+        {"J","K","L","M","N","O","P","Q","R"},
+        {"S","T","U","V","W","X","Y","Z","OK"}
+    };
+
+    // Sizes
+    int keyW = 32; 
+    int keyH = 30;
+    int spacing = 3;
+
+    int startX = 5;
+    int startY = 80;
+
+    while (true)
+    {
+        // Draw input box
+        LCD.SetFontColor(BLACK);
+        LCD.DrawRectangle(10, 45, 300, 25);
+        LCD.WriteAt(code, 15, 50);
+
+        // Draw keyboard
+        for (int r = 0; r < 3; r++)
+        {
+            for (int c = 0; c < 9; c++)
+            {
+                int x = startX + c * (keyW + spacing);
+                int y = startY + r * (keyH + spacing);
+
+                LCD.SetFontColor(BLUE);
+                LCD.DrawRectangle(x, y, keyW, keyH);
+                LCD.WriteAt(keys[r][c], x + 8, y + 5);
+            }
+        }
+
+        // Wait for touch
+        float tx, ty, tt, tv;
+        while (!LCD.Touch(&tx, &ty)) {}
+        while (LCD.Touch(&tt, &tv)) {}
+
+        // Check which key was pressed
+        for (int r = 0; r < 3; r++)
+        {
+            for (int c = 0; c < 9; c++)
+            {
+                int x = startX + c * (keyW + spacing);
+                int y = startY + r * (keyH + spacing);
+
+                if (tx >= x && tx <= x + keyW &&
+                    ty >= y && ty <= y + keyH)
+                {
+                    const char* key = keys[r][c];
+
+                    // --- OK pressed ---
+                    if (strcmp(key, "OK") == 0)
+                    {
+                        code[index] = '\0';
+
+                        if (strcmp(code, "PAINTRAIN") == 0 ||
+                            strcmp(code, "paintrain") == 0)
+                        {
+                            LCD.Clear();
+                            LCD.SetFontColor(RED);
+                            LCD.WriteAt("PAIN MODE ACTIVATED!", 20, 100);
+                            Sleep(1.0);
+                            pain_mode();
+                            return;
+                        }
+                        else
+                        {
+                            LCD.Clear();
+                            LCD.SetFontColor(BLACK);
+                            LCD.WriteAt("INVALID CODE!", 90, 100);
+                            Sleep(1.2);
+                            play_button();
+                            return;
+                        }
+                    }
+
+                    // --- Letter pressed ---
+                    if (index < 29)
+                    {
+                        code[index++] = key[0];
+                        code[index] = '\0';
+                    }
+                }
+            }
+        }
+
+        // Redraw background for next frame
+        LCD.Clear();
+        LCD.SetFontColor(BLACK);
+        LCD.WriteAt("Enter Cheat Code:", 60, 20);
+    }
+}
+
+
+
 
 void Main_Menu::stats_button()
 {
-    Main_Menu g1;
     float x, y, t, v;
     int selected_button = 0;
 
@@ -171,11 +299,11 @@ void Main_Menu::stats_button()
         while (LCD.Touch(&t,&v)) {};
         if((x >= 60 && x <= 160) && (y >= 190 && y <= 215))
             {
-                g1.play_button();
+                play_button();
             }
         if((x >= 180 && x <= 260) && (y >= 190 && y <= 215))
             {
-                g1.Main_Screen();
+                Main_Screen();
                 
             }
         }
@@ -184,7 +312,6 @@ void Main_Menu::stats_button()
 
 void Main_Menu::credits_button()
 {
-    Main_Menu g1;
     float x,y,v,t;
     LCD.SetBackgroundColor(GREEN);
     LCD.Clear();
@@ -204,7 +331,7 @@ void Main_Menu::credits_button()
         while (LCD.Touch(&t,&v)) {};
         if((x >= 135 && x <= 185) && (y >= 200 && y <= 222))
             {
-                g1.Main_Screen();
+                Main_Screen();
             }
     }
 
@@ -214,7 +341,6 @@ void Main_Menu::credits_button()
 void Main_Menu :: Main_Screen ()
 {
      float x,y,v,t;
-    Main_Menu g1; 
     LCD.SetBackgroundColor(WHITE);
     LCD.Clear();
     LCD.SetFontColor (BLACK);
@@ -249,21 +375,21 @@ void Main_Menu :: Main_Screen ()
     
     if((x >= 40 && x <= 90) && (y >= 128 && y <= 150))
         {
-            g1.play_button();
+            play_button();
         }
 
     if((x >= 40 && x <= 90) && (y >= 172 && y <= 194))
         {
-            g1.stats_button();
+            stats_button();
         }
 
     if((x >= 230 && x <= 280) && (y >= 128 && y <= 150))
         {
-            g1.credits_button();
+            credits_button();
         }
     if((x >= 230 && x <= 280) && (y >= 172 && y <= 194))
         {        
-            g1.tutorial();
+            tutorial();
         }
     }
     while (1) {
@@ -275,69 +401,112 @@ void Main_Menu :: Main_Screen ()
  
 void Main_Menu::tutorial()
 {
-    Main_Menu g1;
+    setDifficulty("chill");
+    // Set player on the ground
     playerY = groundY - playerH;
-    LCD.SetBackgroundColor(WHITE);
-    LCD.Clear();
+    loads = 0;
+    loads_streak = 0;
+    misses = 0;
 
-    float lastFrameTime = TimeNow(); // initialize once
+    // Tutorial uses only 1 machine
+    const int NUM_TUTORIAL_MACHINES = 1;
+    int tutorialMachineX[NUM_TUTORIAL_MACHINES] = { 270 };
+    int tutorialMachineY[NUM_TUTORIAL_MACHINES] = { groundY - 40 };
+    int tutorialMachineW = 30;
+    int tutorialMachineH = 40;
+
+    // Reset falling object
+    fallX = Random.RandInt() % 300 + 10;
+    fallY = 10;
+    fallLanded = false;
+    fallTimer = 0.0f;
+
+    float lastFrameTime = TimeNow();
 
     while (true)
     {
         float currentTime = TimeNow();
         float deltaTime = currentTime - lastFrameTime;
-        lastFrameTime = currentTime; // update for next frame
+        lastFrameTime = currentTime;
 
+        // Update player movement
         movement();
+
+        // Update falling objects
         updateFallingObject(deltaTime);
+
+        // Check collisions with piles and people
         collisions();
+
+        // Move piles and people
         piles();
-        people();   
-        bool touching =
-            !(playerX + playerW < machineX ||
-              machineX + machineW < playerX ||
-              playerY + playerH < machineY ||
-              machineY + machineH < playerY);
+        people();
+
+        // --- Check interaction with the tutorial machine ---
+        bool touching = 
+            !(playerX + playerW < tutorialMachineX[0] ||
+              tutorialMachineX[0] + tutorialMachineW < playerX ||
+              playerY + playerH < tutorialMachineY[0] ||
+              tutorialMachineY[0] + tutorialMachineH < playerY);
 
         if (touching && Keyboard.isPressed(KEY_SPACE))
         {
+            // Tutorial complete
             LCD.Clear();
             LCD.SetFontColor(BLACK);
             LCD.WriteAt("Laundry Done!", 80, 90);
             LCD.WriteAt("Tutorial Complete!", 60, 130);
 
+            // Wait for user touch to continue
             float tx, ty, tt, tv;
             while (!LCD.Touch(&tx,&ty)) {}
             while (LCD.Touch(&tt,&tv)) {}
-            g1.play_button();
+            play_button();
             return;
         }
 
+        // --- Draw frame ---
         LCD.Clear();
+        LCD.SetBackgroundColor(WHITE);
         LCD.SetFontColor(BLACK);
         LCD.SetFontScale(0.5);
-        LCD.WriteAt("Tutorial: Try using up,left, and right to move!",10,10); 
-        LCD.WriteAt("Use the spacebar to interact with washing machine!",10,25);
-        LCD.SetFontColor(BLACK);
+
+        // Instructions
+        LCD.WriteAt("Tutorial: Use arrow keys to move!", 10, 10);
+        LCD.WriteAt("Press SPACE to interact with machine!", 10, 25);
+
+        // Ground
         LCD.DrawLine(0, groundY, 320, groundY);
-        drawFallingObject();
+
+        // Draw player
         LCD.FillRectangle(playerX, playerY, playerW, playerH);
-        LCD.DrawRectangle(machineX, machineY, machineW, machineH);
-          // draw piles
-    for (int i = 0; i < NUM_PILES; i++)
-    {
-        LCD.FillRectangle(pileX[i], pileY[i], pileW, pileH);
-    }
-    for (int i = 0; i < NUM_Person; i++)
-    {
-        LCD.FillRectangle(PersonX[i], PersonY[i], personW, personH);
-    }
+
+        // Draw tutorial machine
+        LCD.FillRectangle(tutorialMachineX[0], tutorialMachineY[0], tutorialMachineW, tutorialMachineH);
+
+        // Draw piles
+        for (int i = 0; i < NUM_PILES; i++)
+        {
+            LCD.FillRectangle(pileX[i], pileY[i], pileW, pileH);
+        }
+
+        // Draw people
+        for (int i = 0; i < NUM_Person; i++)
+        {
+            LCD.FillRectangle(PersonX[i], PersonY[i], personW, personH);
+        }
+
+        // Draw falling object
+        drawFallingObject();
+
         LCD.Update();
     }
 }
 
+
 Main_Menu::Main_Menu()
 {
+    
     for (int i = 0; i < NUM_PILES; i++)
     {
         pileX[i] = 320 + 80 * i;
@@ -353,6 +522,8 @@ Main_Menu::Main_Menu()
     fallY = 10;                         // start offscreen
     fallLanded = false;
     fallTimer = 0.0f;
+    activeMachine = Random.RandInt() % 8;
+    machineTimer = 0.0f;
 }
 
 void Main_Menu::machines()
@@ -375,16 +546,17 @@ void Main_Menu::machines()
     }
 }
 
-   void Main_Menu::movement()
+void Main_Menu::movement()
 {
-    float speed = 3.0f;
-    float jumpMultiplier = 1.0f;  // full jump by default
+    float speed = playerSpeed;
+    float jumpM = jumpMultiplier;
 
-    // Check if player is touching the fallen rectangle
+    // Slowdown on rectangle
     if (fallLanded)
     {
         int rectX = fallX - fallRectW / 2;
         int rectY = fallY;
+
         bool touching =
             !(playerX + playerW < rectX ||
               rectX + fallRectW < playerX ||
@@ -393,31 +565,31 @@ void Main_Menu::machines()
 
         if (touching)
         {
-            speed *= 0.5f;        // move slower
-            jumpMultiplier = 0.6f; // jump lower (60% of normal jump)
+            speed *= 0.5f;
+            jumpM *= 0.6f;
         }
     }
 
-    // Horizontal movement
+    // Left/Right
     if (Keyboard.isPressed(KEY_RIGHT) && playerX + playerW < 320)
-        playerX += (int)speed;
+        playerX += speed;
+
     if (Keyboard.isPressed(KEY_LEFT) && playerX > 0)
-        playerX -= (int)speed;
+        playerX -= speed;
 
     // Jump
     if (Keyboard.isPressed(KEY_UP) && !inAir)
     {
         inAir = true;
-        velocityY = jumpStrength * jumpMultiplier; // apply reduced jump if needed
+        velocityY = jumpStrength * jumpM;
     }
 
-    // Apply gravity
+    // Gravity stuff (unchanged)
     if (inAir)
     {
         velocityY += gravity;
-        playerY += (int)velocityY;
+        playerY += velocityY;
 
-        // Ground collision
         if (playerY >= groundY - playerH)
         {
             playerY = groundY - playerH;
@@ -427,20 +599,18 @@ void Main_Menu::machines()
     }
 }
 
+
 void Main_Menu::piles()
 {
-    // move piles left
-    for (int i = 0; i < NUM_PILES; i++)
+    for (int i = 0; i < numPiles; i++)
     {
-        pileX[i] -= 2;
+        pileX[i] -= pileSpeed;
 
-        // if off screen, respawn far right
         if (pileX[i] + pileW < 0)
-        {
             pileX[i] = 320 + (Random.RandInt() % 150);
-        }
     }
 }
+
 
 void Main_Menu::collisions()
 {
@@ -476,18 +646,15 @@ void Main_Menu::collisions()
 
 void Main_Menu::people()
 {
-    // move people right
-    for (int i = 0; i < NUM_Person; i++)
+    for (int i = 0; i < numPeople; i++)
     {
-        PersonX[i] += 1;
+        PersonX[i] += personSpeed;
 
-        // if off right edge, respawn far left
         if (PersonX[i] > 320)
-        {
-            PersonX[i] = 0 - (Random.RandInt() % 150);
-        }
+            PersonX[i] = - (Random.RandInt() % 150);
     }
 }
+
 
 void Main_Menu::updateFallingObject(float deltaTime)
 {
@@ -536,149 +703,372 @@ void Main_Menu::drawFallingObject()
     }
 }
 
-
-
-void Main_Menu :: chill_mode () 
+void Main_Menu::score_keeping(float deltaTime)
 {
-{
-    Main_Menu g1;
-    playerY = groundY - playerH;
     const int NUM_MACHINES = 8;
+    int machineX[NUM_MACHINES] = { 270, 270, 240, 240, 30, 30, 60, 60 };
+    int machineY[NUM_MACHINES] = { groundY - 40, groundY - 80,
+                                   groundY - 40, groundY - 80,
+                                   groundY - 40, groundY - 80,
+                                   groundY - 40, groundY - 80 };
+    int machineW = 30;
+    int machineH = 40;
 
-int machineX[NUM_MACHINES] = {
-    270, 270,       // right column
-    240, 240,       // right column left
-    30, 30,         // far left
-    60, 60          // near left
-};
+    // --- Update timer ---
+    machineTimer += deltaTime;
 
-int machineY[NUM_MACHINES] = {
-    groundY - 40, groundY - 80,
-    groundY - 40, groundY - 80,
-    groundY - 40, groundY - 80,
-    groundY - 40, groundY - 80
-};
+    // --- Check if player interacted with active machine ---
+    bool touching =
+        !(playerX + playerW < machineX[activeMachine] ||
+          machineX[activeMachine] + machineW < playerX ||
+          playerY + playerH < machineY[activeMachine] ||
+          machineY[activeMachine] + machineH < playerY);
 
-int machineW = 30;
-int machineH = 40;
+    if (touching && Keyboard.isPressed(KEY_SPACE))
+    {
+        loads++;
+        loads_streak++;
+        activeMachine = Random.RandInt() % NUM_MACHINES; // pick new machine
+        machineTimer = 0.0f;
+    }
+
+    // --- Timer expires without interaction ---
+    if (machineTimer >= machineDuration)
+    {
+        misses++;
+        loads_streak = 0;
+        activeMachine = Random.RandInt() % NUM_MACHINES;
+        machineTimer = 0.0f;
+    }
+
+    // --- Draw machines ---
+    for (int i = 0; i < NUM_MACHINES; i++)
+    {
+        if (i == activeMachine)
+        {
+            LCD.SetFontColor(RED);
+            LCD.FillRectangle(machineX[i], machineY[i], machineW, machineH);
+        }
+        else
+        {
+            LCD.SetFontColor(BLACK);
+            LCD.DrawRectangle(machineX[i], machineY[i], machineW, machineH);
+        }
+    }
+}
+
+void Main_Menu::setDifficulty(std::string mode)
+{
+    if (mode == "chill") {
+        playerSpeed = 3.0f;
+        jumpMultiplier = 1.0f;
+        pileSpeed = 2.0f;
+        personSpeed = 1.0f;
+        machineDuration = 5.0f;
+        numPiles = 2;
+        numPeople = 1;
+    } else if (mode == "normal") {
+        playerSpeed = 4.0f;
+        jumpMultiplier = 0.9f;
+        pileSpeed = 3.0f;
+        personSpeed = 2.0f;
+        machineDuration = 4.0f;
+        numPiles = 3;
+        numPeople = 2;
+    } else if (mode == "pain") {
+        playerSpeed = 5.0f;
+        jumpMultiplier = 0.8f;
+        pileSpeed = 4.0f;
+        personSpeed = 3.0f;
+        machineDuration = 3.0f;
+        numPiles = 4;
+        numPeople = 3;
+    }
+}
+
+
+void Main_Menu::chill_mode()
+{
+    setDifficulty("chill");
+    loads=0, loads_streak=0, misses=0;
+    playerY = groundY - playerH;
+    
 
     float levelTime = 180.0f;
     float startTime = TimeNow();
 
+    // Initialize piles
     for (int i = 0; i < NUM_PILES; i++)
     {
-        pileX[i] = 320 + 40 * i + (Random.RandInt()%40);
+        pileX[i] = 320 + 40 * i + (Random.RandInt() % 40);
         pileY[i] = groundY - pileH;
     }
 
-    LCD.SetBackgroundColor(WHITE);
-    LCD.Clear();
+    float lastFrameTime = TimeNow();
+
+   
+    
 
     while (true)
     {
-        float elapsed = TimeNow() - startTime;
-        float remaining = levelTime - elapsed;
+        // --- Timing ---
+        float currentTime = TimeNow();
+        float deltaTime = currentTime - lastFrameTime;
+        lastFrameTime = currentTime;
 
+        float elapsed = currentTime - startTime;
+        float remaining = levelTime - elapsed;
         if (remaining <= 0)
         {
             LCD.Clear();
             LCD.SetFontColor(BLACK);
             LCD.WriteAt("Time's up!", 110, 90);
             LCD.WriteAt("Chill Mode Complete", 100, 130);
-
             float tx, ty, tt, tv;
             while (!LCD.Touch(&tx,&ty)) {}
             while (LCD.Touch(&tt,&tv)) {}
-            g1.stats_button();
+            stats_button();
             return;
         }
 
-        if (Keyboard.isPressed(KEY_RIGHT) && playerX + playerW < 320) playerX += 3;
-        if (Keyboard.isPressed(KEY_LEFT) && playerX > 0) playerX -= 3;
-        if (Keyboard.isPressed(KEY_UP) && !inAir)
-{
-    inAir = true;
-    velocityY = jumpStrength;   // give upward velocity
-}
+       
 
-// Apply gravity if in the air
-if (inAir)
-{
-    velocityY += gravity;       // get pulled down each frame
-    playerY += (int)velocityY;  // move player
+        // --- Update game state ---
+        movement();
+        updateFallingObject(deltaTime);
+        collisions();
+        piles();
+        people();
 
-    // Ground collision
-    if (playerY >= groundY - playerH)
-    {
-        playerY = groundY - playerH;
-        inAir = false;
-        velocityY = 0;
-    }
-}
+        
 
-        for (int i = 0; i < NUM_PILES; i++)
-        {
-            pileX[i] -= 2;
-            if (pileX[i] + pileW < 0) 
-            pileX[i] = 320 + 150 + (Random.RandInt()%100);
-        }
-
-        for (int i = 0; i < NUM_PILES; i++)
-        {
-            bool overlap =
-                !(playerX + playerW < pileX[i] ||
-                  pileX[i] + pileW < playerX ||
-                  playerY + playerH < pileY[i] ||
-                  pileY[i] + pileH < playerY);
-
-            if (overlap)
-            {
-                playerX -= 20;
-                if (playerX < 0) playerX = 0;
-            }
-        }
-
-       for (int i = 0; i < NUM_MACHINES; i++)
-{
-    bool touching =
-        !(playerX + playerW < machineX[i] ||
-          machineX[i] + machineW < playerX ||
-          playerY + playerH < machineY[i] ||
-          machineY[i] + machineH < playerY);
-
-    if (touching && Keyboard.isPressed(KEY_SPACE))
-    {
-        loads++;
-        loads_streak++;
-        break;   // stop after first machine touched
-    }
-}
+        // --- Draw everything ---
         LCD.Clear();
+        LCD.SetBackgroundColor(WHITE);
         LCD.SetFontColor(BLACK);
         LCD.DrawLine(0, groundY, 320, groundY);
-
         LCD.FillRectangle(playerX, playerY, playerW, playerH);
 
+        // Draw piles
         for (int i = 0; i < NUM_PILES; i++)
         {
             LCD.FillRectangle(pileX[i], pileY[i], pileW, pileH);
         }
-        
-        g1.machines();
+
+        // Draw people
+        for (int i = 0; i < NUM_Person; i++)
+        {
+            LCD.FillRectangle(PersonX[i], PersonY[i], personW, personH);
+        }
+
+        score_keeping(deltaTime);
+
+        // Draw falling object
+        drawFallingObject();
+
+        // Draw HUD
         LCD.SetFontScale(0.5);
-        LCD.WriteAt("loads done:", 40, 70);
-        LCD.WriteAt(loads, 200, 70);
+        LCD.SetFontColor(BLACK);
+        LCD.WriteAt("loads done:", 40, 10);
+        LCD.WriteAt(loads, 200, 10);
+        LCD.WriteAt("misses:", 40, 25);
+        LCD.WriteAt(misses, 200, 25);
+        LCD.WriteAt("streak:", 40, 40);
+        LCD.WriteAt(loads_streak, 200, 40);
+        LCD.WriteAt("Time left:", 40, 55);
+        LCD.WriteAt((int)remaining, 200, 55);
+
         LCD.Update();
     }
 }
-}
+
 
 void Main_Menu::normal_mode()
 {
+    setDifficulty("normal");
+    loads=0, loads_streak=0, misses=0;
+    playerY = groundY - playerH;
+    
 
+    float levelTime = 120.0f;
+    float startTime = TimeNow();
+
+    // Initialize piles
+    for (int i = 0; i < NUM_PILES; i++)
+    {
+        pileX[i] = 320 + 40 * i + (Random.RandInt() % 40);
+        pileY[i] = groundY - pileH;
+    }
+
+    float lastFrameTime = TimeNow();
+
+   
+    
+
+    while (true)
+    {
+        // --- Timing ---
+        float currentTime = TimeNow();
+        float deltaTime = currentTime - lastFrameTime;
+        lastFrameTime = currentTime;
+
+        float elapsed = currentTime - startTime;
+        float remaining = levelTime - elapsed;
+        if (remaining <= 0)
+        {
+            LCD.Clear();
+            LCD.SetFontColor(BLACK);
+            LCD.WriteAt("Time's up!", 110, 90);
+            LCD.WriteAt("Normal Mode Complete", 100, 130);
+            float tx, ty, tt, tv;
+            while (!LCD.Touch(&tx,&ty)) {}
+            while (LCD.Touch(&tt,&tv)) {}
+            stats_button();
+            return;
+        }
+
+       
+
+        // --- Update game state ---
+        movement();
+        updateFallingObject(deltaTime);
+        collisions();
+        piles();
+        people();
+
+        
+
+        // --- Draw everything ---
+        LCD.Clear();
+        LCD.SetBackgroundColor(WHITE);
+        LCD.SetFontColor(BLACK);
+        LCD.DrawLine(0, groundY, 320, groundY);
+        LCD.FillRectangle(playerX, playerY, playerW, playerH);
+
+        // Draw piles
+        for (int i = 0; i < NUM_PILES; i++)
+        {
+            LCD.FillRectangle(pileX[i], pileY[i], pileW, pileH);
+        }
+
+        // Draw people
+        for (int i = 0; i < NUM_Person; i++)
+        {
+            LCD.FillRectangle(PersonX[i], PersonY[i], personW, personH);
+        }
+
+        score_keeping(deltaTime);
+
+        // Draw falling object
+        drawFallingObject();
+
+        // Draw HUD
+        LCD.SetFontScale(0.5);
+        LCD.SetFontColor(BLACK);
+        LCD.WriteAt("loads done:", 40, 10);
+        LCD.WriteAt(loads, 200, 10);
+        LCD.WriteAt("misses:", 40, 25);
+        LCD.WriteAt(misses, 200, 25);
+        LCD.WriteAt("streak:", 40, 40);
+        LCD.WriteAt(loads_streak, 200, 40);
+        LCD.WriteAt("Time left:", 40, 55);
+        LCD.WriteAt((int)remaining, 200, 55);
+
+        LCD.Update();
+    }
 }
 
 void Main_Menu::pain_mode()
 {
+    setDifficulty("pain");
+    loads=0, loads_streak=0, misses=0;
+    playerY = groundY - playerH;
     
+
+    float levelTime = 60.0f;
+    float startTime = TimeNow();
+
+    // Initialize piles
+    for (int i = 0; i < NUM_PILES; i++)
+    {
+        pileX[i] = 320 + 40 * i + (Random.RandInt() % 40);
+        pileY[i] = groundY - pileH;
+    }
+
+    float lastFrameTime = TimeNow();
+
+   
+    
+
+    while (true)
+    {
+        // --- Timing ---
+        float currentTime = TimeNow();
+        float deltaTime = currentTime - lastFrameTime;
+        lastFrameTime = currentTime;
+
+        float elapsed = currentTime - startTime;
+        float remaining = levelTime - elapsed;
+        if (remaining <= 0)
+        {
+            LCD.Clear();
+            LCD.SetFontColor(BLACK);
+            LCD.WriteAt("Time's up!", 110, 90);
+            LCD.WriteAt("Pain Complete", 100, 130);
+            float tx, ty, tt, tv;
+            while (!LCD.Touch(&tx,&ty)) {}
+            while (LCD.Touch(&tt,&tv)) {}
+            stats_button();
+            return;
+        }
+
+       
+
+        // --- Update game state ---
+        movement();
+        updateFallingObject(deltaTime);
+        collisions();
+        piles();
+        people();
+
+        
+
+        // --- Draw everything ---
+        LCD.Clear();
+        LCD.SetBackgroundColor(WHITE);
+        LCD.SetFontColor(BLACK);
+        LCD.DrawLine(0, groundY, 320, groundY);
+        LCD.FillRectangle(playerX, playerY, playerW, playerH);
+
+        // Draw piles
+        for (int i = 0; i < NUM_PILES; i++)
+        {
+            LCD.FillRectangle(pileX[i], pileY[i], pileW, pileH);
+        }
+
+        // Draw people
+        for (int i = 0; i < NUM_Person; i++)
+        {
+            LCD.FillRectangle(PersonX[i], PersonY[i], personW, personH);
+        }
+
+        score_keeping(deltaTime);
+
+        // Draw falling object
+        drawFallingObject();
+
+        // Draw HUD
+        LCD.SetFontScale(0.5);
+        LCD.SetFontColor(BLACK);
+        LCD.WriteAt("loads done:", 40, 10);
+        LCD.WriteAt(loads, 200, 10);
+        LCD.WriteAt("misses:", 40, 25);
+        LCD.WriteAt(misses, 200, 25);
+        LCD.WriteAt("streak:", 40, 40);
+        LCD.WriteAt(loads_streak, 200, 40);
+        LCD.WriteAt("Time left:", 40, 55);
+        LCD.WriteAt((int)remaining, 200, 55);
+
+        LCD.Update();
+    }
 }
