@@ -1,87 +1,106 @@
+/*These are the libraries that are used to make the code funciton*/
 #include "FEHLCD.h"
 #include "FEHUtility.h"
 #include "FEHKeyboard.h"
 #include "FEHRandom.h"
 
-
+/*This is the class that contains all of the functions that run the code.*/
 class Main_Menu
 {
 private:
-        int loads=0, loads_streak=0, misses=0;
-        float velocityY = 0.0f;
-        float gravity = 0.4f;
-        float jumpStrength = -7.0f;
-        int playerX = 40;
-        int playerY;
-        int playerW = 14;
-        int playerH = 18;
-        int groundY = 200;
-        bool inAir = false;
-        int pileW = 20;
-        int pileH = 12;
-        static const int NUM_PILES = 6;
-        static const int NUM_Person = 4;
-        int machineX = 270;
-        int machineY = groundY - 40;
-        int machineW = 30;
-        int machineH = 40;
-        int pileX[NUM_PILES];
-        int pileY[NUM_PILES];
-        int personW = 12;
-        int personH = 20;
-        int PersonX[NUM_Person];
-        int PersonY[NUM_Person];
-        // Falling object
-        int fallX;          // x position
-        int fallY;          // y position
-        int fallR = 8;      // circle radius
-        bool fallLanded;    // true when turned into rectangle
-        int fallSpeed = 2;  // falling speed
-        // Rectangle after landing
-        int fallRectW = 50;
-        int fallRectH = 7;
-        float fallTimer;        // counts how long rectangle has been on the ground
-        float fallDuration = 3;
-        int activeMachine;
-        float machineTimer;
-        // --- Difficulty parameters ---
-        float playerSpeed;
-        float jumpMultiplier;
-        float pileSpeed;
-        float personSpeed;
-        float machineDuration;
-        int numPiles;
-        int numPeople;
+
+        int loads=0, loads_streak=0, misses=0; /*Sets the scores on the stats page to zero*/
+        
+        float velocityY = 0.0f; /*This is the jump velocity (how high you can jump)*/
+        float gravity = 0.4f; /*Sets up gravity (This brings you back down)*/
+        float jumpStrength = -7.0f; /*Given by AI to help with the jump mechanic when it wasn't working properly*/
+       
+        int playerX = 40; /*Sets the spawn of the character's X position*/
+        int playerY; /*Sets the spawn of the character's Y position*/
+        int playerW = 14; /*Sets the width of the character*/
+        int playerH = 18; /*Sets the height of the character*/
+        
+        int groundY = 200; /*This is the floor in the game.*/
+        
+        bool inAir = false; /*A condition to check if the player is airborne. This is false because the player hasn't jumped yet*/
+        int pileW = 20; /*Sets the laundry piles' width*/
+        int pileH = 12; /*Sets the laundry piles' height*/
+        
+        static const int NUM_PILES = 6; /*Sets the maximum allowed laundry piles spawned at six.*/
+        static const int NUM_Person = 4; /*Sets the maximum allowed people spawned at four.*/
+        
+        int machineX = 270; /*Sets the x position of the first laundry machine at x=270.*/
+        int machineY = groundY - 40; /*Sets the Y position of the first laundry machine at y = 160*/
+        int machineW = 30; /*Sets the width of the first laundry machine.*/
+        int machineH = 40; /*Sets the height of the first laundry machine.*/
+
+        int pileX[NUM_PILES]; /*An array with the x positions of the laundry piles. (given how many laundry piles are allowed)*/
+        int pileY[NUM_PILES]; /*An array with the y positions of the laundry piles. (given how many laundry piles are allowed)*/
+        
+        int personW = 12; /*Sets the person's width*/
+        int personH = 20; /*Sets the person's height*/
+        int PersonX[NUM_Person]; /*An array with the x positions of the people. (given how many people are allowed)*/
+        int PersonY[NUM_Person]; /*An array with the y positions of the people. (given how many people are allowed)*/
+        
+       
+        int fallX;         /*The spilled detergent will start at this x position*/
+        int fallY;         /*The spilled detergent will start at this y position*/
+        int fallR = 8;     /*The spilled detergent will be this big (a circle with radius eight pixels.)*/
+        bool fallLanded;    /*A condition to see if the detergent reached the floor.*/
+        int fallSpeed = 2;  /*How fast the ball will fall.*/
+      
+        int fallRectW = 50; /*The spilled detergent becomes a rectangle with this width.*/
+        int fallRectH = 7;  /*The spilled detergent becomes a rectangle with this height.*/
+        float fallTimer;    /*How long the detergent has been on the ground.*/
+        float fallDuration = 3; /* The detergent will stay on the ground for this time.*/
+
+        int activeMachine; /*Used to determine which machine is active.*/
+        float machineTimer; /*Used to determine how long machine is active.*/
+        
+
+        float playerSpeed; /*Used to determine how fast the player will be.*/
+        float jumpMultiplier; /*Used to determine how high the player can jump (as an addon).*/
+        float pileSpeed; /*Used to determine how fast the laundry piles will be.*/
+        float personSpeed; /*Used to determine how fast the people will be.*/
+        float machineDuration; /*Used to determine how long machine is active before being noninteractable.*/
+        int numPiles; /*Used to determine how many laundry piles will be spawned.*/
+        int numPeople; /*Used to determine how many people will be spawned.*/
         
 
         
   
 public:
- void play_button();
- void stats_button();
- void credits_button();
- void Main_Screen ();
- void chill_mode ();
- void normal_mode ();
- void pain_mode ();
- void tutorial ();
- void machines();
- void movement();
- void piles();
- void collisions();
- Main_Menu();
-void people();
-void updateFallingObject(float a);
-void drawFallingObject();
-void score_keeping(float a);
-void setDifficulty(std::string mode);
-void code_screen();
+ Main_Menu(); /*A constructor for intializing variables for gameplay */
+
+ void play_button(); /*Function for the play button.*/
+ void stats_button(); /*Function for the statisics button.*/
+ void credits_button(); /*Function for the credits button.*/
+ void Main_Screen (); /*Function for the Main screen.*/
+ void tutorial (); /*Function for the tutorial button (instructions).*/
+ void code_screen(); /*A screen to put in the secret code (which is shown on the flyer).*/
+
+ void chill_mode (); /*Function for the "easy" difficulty.*/
+ void normal_mode (); /*Function for the "normal" difficulty.*/
+ void pain_mode (); /*Function for the "hard" difficulty.*/
+
+ void machines(); /*Function for the creation of the washing machines*/
+ void movement(); /*Function for the player movement and slowed interaction with laundry detergent.*/
+ void piles(); /*Function for the actual spawn of the piles. (offscreen)*/
+ void collisions(); /*Function for the collisions between the player and the laundry piles and people.*/
+void people(); /*Function for the actual spawn of the people. (offscreen)*/
+
+void updateFallingObject(float a); /*Keeps track of the falling detergent from the sky*/
+void drawFallingObject(); /*Draws the falling detergent.*/
+
+void score_keeping(float a); /*Tracks the score (This being the loads done, the number of loads done consectutively and number of misses.)*/
+void setDifficulty(std::string mode); /*Function for selected difficulty (chill will be slower and easier and so forth.).*/
 };
 
 
-
+/*The function that starts upon opening the game. It will keep running until the player quits*/
+/*It starts by opening the main menu screen.*/
+/*Written by Michael*/
 int main() {
-    float x,y,v,t;
     Main_Menu g1; 
     g1.Main_Screen();
     while (1) {
@@ -91,6 +110,10 @@ int main() {
     return 0;
 }
 
+/*The function that creates the difficulty selection screen.*/
+/*It starts by creating the the chill, normal, back, and code buttons and registering if the player clicks on any of the buttons.*/
+/*It also displays the text to select difficulty.*/
+/*Written by Michael*/
  void Main_Menu::play_button()
 {
     
@@ -99,27 +122,32 @@ int main() {
     LCD.Clear();
     LCD.SetFontColor (WHITE);
     LCD.WriteAt ("Select Difficulty",110,25);
+    
     LCD.SetFontColor (WHITE);
     LCD.DrawRectangle (50,125,50,22);
     LCD.FillRectangle (50,125,50,22);
     LCD.SetFontColor (BLACK);
     LCD.WriteAt ("Chill",60,130);
+    
     LCD.SetFontColor (WHITE);
     LCD.DrawRectangle (225,125,50,22);
     LCD.FillRectangle (225,125,50,22);
     LCD.SetFontColor (BLACK);
     LCD.WriteAt ("Normal",232,130);
+    
     LCD.SetFontColor (WHITE);
     LCD.DrawRectangle (135,200,50,22);
     LCD.FillRectangle (135,200,50,22);
     LCD.SetFontScale(0.5);
     LCD.SetFontColor (BLACK);
     LCD.WriteAt ("Back",147,205);
+    
     LCD.SetFontColor (WHITE);
     LCD.DrawRectangle (137,125,50,22);
     LCD.FillRectangle (137,125,50,22);
     LCD.SetFontColor (BLACK);
     LCD.WriteAt ("Code?",147,130);
+   
     while(true)
     {
         while (!LCD.Touch(&x,&y)) {};
@@ -144,6 +172,12 @@ int main() {
 }
 }
 
+/*The function that creates the code input screen.(as a joke it displays that there is no secret code)*/
+/*It also creates a clickable keyboard that contains the letters of the alphabet and a enter key*/
+/*Each letter has its own square and detection if the player clicks on the letters*/
+/*It then checks if the code was inputted correctly or if it wasn't. If not it displays invalid code*/
+/*Supposing the code was correct, then pain mode is activated (which is also printed to the LCD screen.)*/
+/*Written by Michael, using AI for debugging*/
 void Main_Menu::code_screen()
 {
     LCD.Clear();
@@ -170,12 +204,12 @@ void Main_Menu::code_screen()
 
     while (true)
     {
-        // Draw input box
-        LCD.SetFontColor(BLACK);
+       /*Draws the input box*/
+        LCD.SetFontColor(WHITE);
         LCD.DrawRectangle(10, 45, 300, 25);
         LCD.WriteAt(code, 15, 50);
 
-        // Draw keyboard
+
         for (int r = 0; r < 3; r++)
         {
             for (int c = 0; c < 9; c++)
@@ -189,12 +223,12 @@ void Main_Menu::code_screen()
             }
         }
 
-        // Wait for touch
+    
         float tx, ty, tt, tv;
         while (!LCD.Touch(&tx, &ty)) {}
         while (LCD.Touch(&tt, &tv)) {}
 
-        // Check which key was pressed
+    
         for (int r = 0; r < 3; r++)
         {
             for (int c = 0; c < 9; c++)
@@ -207,7 +241,7 @@ void Main_Menu::code_screen()
                 {
                     const char* key = keys[r][c];
 
-                    // --- OK pressed ---
+                    
                     if (strcmp(key, "OK") == 0)
                     {
                         code[index] = '\0';
@@ -233,7 +267,7 @@ void Main_Menu::code_screen()
                         }
                     }
 
-                    // --- Letter pressed ---
+                    /*Creates a null character*/
                     if (index < 29)
                     {
                         code[index++] = key[0];
@@ -243,7 +277,7 @@ void Main_Menu::code_screen()
             }
         }
 
-        // Redraw background for next frame
+        /*Redraws the text for each frame.*/
         LCD.Clear();
         LCD.SetFontColor(BLACK);
         LCD.WriteAt("Enter Cheat Code:", 60, 20);
@@ -252,22 +286,28 @@ void Main_Menu::code_screen()
 
 
 
-
+/*The function that handles displaying how the player did in the game.*/
+/*Resets the previous scores by clearing the screen*/
+/*Then creates text for the number of loads done, the number of consectutive loads, and number of misses and prints to screen.*/
+/*Then it creates two buttons, one of which goes back to main menu and the other goes to difficulty selection.*/
+/*Also handles click detection for the buttons*/
+/*Written by Faiza with AI debugging when needed.*/
 void Main_Menu::stats_button()
+
 {
     float x, y, t, v;
     int selected_button = 0;
 
-    //set the stats screen background and clear any previous frame
+    
     LCD.SetBackgroundColor(BLUE);
     LCD.Clear();
 
-    //draw the title
+   
     LCD.SetFontColor(WHITE);
     LCD.SetFontScale(1.0);
     LCD.WriteAt("stats", 135, 20);
 
-    //draw the text labels and values
+    
     LCD.SetFontScale(0.5);
     LCD.WriteAt("loads done:", 40, 70);
     LCD.WriteAt(loads, 200, 70);
@@ -281,7 +321,7 @@ void Main_Menu::stats_button()
    
     while(true)
     {
-        //clear the button area each frame
+        
         LCD.SetFontColor(WHITE);
         LCD.DrawRectangle(60, 190, 100, 25);
         LCD.FillRectangle(60, 190, 100, 25);
@@ -309,7 +349,10 @@ void Main_Menu::stats_button()
         }
     }
 
-
+/*The function that handles the credits screen*/
+/*It displays the authors of this code and a button that allows the user to go back to the home screen*/
+/*Also handles click detection for that button*/
+/*Written by Michael*/
 void Main_Menu::credits_button()
 {
     float x,y,v,t;
@@ -319,25 +362,27 @@ void Main_Menu::credits_button()
     LCD.WriteAt ("Game was made by:",110,50);
     LCD.SetFontColor (WHITE);
     LCD.WriteAt ("Faiza Choudhry and Michael Tang",70,100);
+    
     LCD.SetFontColor (WHITE);
     LCD.DrawRectangle (135,200,50,22);
     LCD.FillRectangle (135,200,50,22);
     LCD.SetFontScale(0.5);
     LCD.SetFontColor (BLACK);
     LCD.WriteAt ("Back",147,205);
-           while(true)
-    {
-        while (!LCD.Touch(&x,&y)) {};
-        while (LCD.Touch(&t,&v)) {};
-        if((x >= 135 && x <= 185) && (y >= 200 && y <= 222))
+        while(true)
+        {
+            while (!LCD.Touch(&x,&y)) {};
+            while (LCD.Touch(&t,&v)) {};
+            if((x >= 135 && x <= 185) && (y >= 200 && y <= 222))
             {
                 Main_Screen();
             }
-    }
-
+        }
 }
 
-
+/*The function that creates the main menu.*/
+/*It creates the buttons that the user can interact with and their click detection*/
+/*Written by Michael*/
 void Main_Menu :: Main_Screen ()
 {
      float x,y,v,t;
@@ -346,29 +391,38 @@ void Main_Menu :: Main_Screen ()
     LCD.SetFontColor (BLACK);
     LCD.DrawRectangle (40,128,50,22);
     LCD.FillRectangle (40,128,50,22);
+    
     LCD.SetFontColor (BLACK);
     LCD.DrawRectangle (230,128,50,22);
     LCD.FillRectangle (230,128,50,22);
+    
     LCD.SetFontColor (BLACK);
     LCD.DrawRectangle (40,172,50,22);
     LCD.FillRectangle (40,172,50,22);
+    
     LCD.SetFontColor (BLACK);
     LCD.DrawRectangle (230,172,50,22);
     LCD.FillRectangle (230,172,50,22);
+    
     LCD.SetFontScale(2);
     LCD.WriteAt ("DormDash",60,10);
+    
     LCD.SetFontColor (WHITE);
     LCD.SetFontScale(0.5);
     LCD.WriteAt ("Play",53,133);
+    
     LCD.SetFontColor (WHITE);
     LCD.SetFontScale (0.5);
     LCD.WriteAt ("Stats",49,177);
+    
     LCD.SetFontColor (WHITE);
     LCD.SetFontScale (0.5);
     LCD.WriteAt ("Credits",233,133);
+    
     LCD.SetFontColor (WHITE);
     LCD.SetFontScale (0.5);
     LCD.WriteAt ("Tutorial",230,177);
+    
     while(true){
     while (!LCD.Touch(&x,&y)) {};
     while (LCD.Touch(&t,&v)) {};
@@ -398,24 +452,33 @@ void Main_Menu :: Main_Screen ()
     }
     
 }
- 
+/*The function that creates the tutorial*/ 
+/*Its difficulty is set to easy to ease the player into the game.*/
+/*Sets the player onto the ground and resets the stats.*/
+/*Draws the singular washing machine for the tutorial*/
+/*Sets the spilled detergent's position and the condition to false (its not on the ground)*/
+/*Sets up time variables for the falling detergent*/
+/*Calls in the functions that makes the player move, obstacles function, collsion for the machine to complete the tutorial and display simple instructions*/
+/*Finally when the user beat the tutorial, the get to see a screen that says they completed the tutorial*/
+/*Finally if they click anywhere, they can move to the difficulty selection.*/
+/*Written by Michael using AI to debug when needed.*/
 void Main_Menu::tutorial()
 {
     setDifficulty("chill");
-    // Set player on the ground
+
     playerY = groundY - playerH;
     loads = 0;
     loads_streak = 0;
     misses = 0;
 
-    // Tutorial uses only 1 machine
+
     const int NUM_TUTORIAL_MACHINES = 1;
     int tutorialMachineX[NUM_TUTORIAL_MACHINES] = { 270 };
     int tutorialMachineY[NUM_TUTORIAL_MACHINES] = { groundY - 40 };
     int tutorialMachineW = 30;
     int tutorialMachineH = 40;
 
-    // Reset falling object
+
     fallX = Random.RandInt() % 300 + 10;
     fallY = 10;
     fallLanded = false;
@@ -503,7 +566,8 @@ void Main_Menu::tutorial()
     }
 }
 
-
+/*A constructor that intializes spawn loactions for the laundry piles, people, and the spilled detergent. */
+/*Written by Michael using AI to debug when overhauls created bugs.*/
 Main_Menu::Main_Menu()
 {
     
@@ -526,6 +590,8 @@ Main_Menu::Main_Menu()
     machineTimer = 0.0f;
 }
 
+/*A function to create the washing machines (their position and actually drawing them) in the actual game modes.*/
+/*Written by Faiza.*/
 void Main_Menu::machines()
 {
 
@@ -545,13 +611,14 @@ void Main_Menu::machines()
         LCD.DrawRectangle(machineX[i], machineY[i], machineW, machineH);
     }
 }
-
+/*The function that controlls the player's movement and slowed when in the detergent obstacle.*/
+/*Written by Faiza using AI to debug when needed.*/
 void Main_Menu::movement()
 {
     float speed = playerSpeed;
     float jumpM = jumpMultiplier;
 
-    // Slowdown on rectangle
+   
     if (fallLanded)
     {
         int rectX = fallX - fallRectW / 2;
@@ -570,21 +637,20 @@ void Main_Menu::movement()
         }
     }
 
-    // Left/Right
+   
     if (Keyboard.isPressed(KEY_RIGHT) && playerX + playerW < 320)
         playerX += speed;
 
     if (Keyboard.isPressed(KEY_LEFT) && playerX > 0)
         playerX -= speed;
 
-    // Jump
+  
     if (Keyboard.isPressed(KEY_UP) && !inAir)
     {
         inAir = true;
         velocityY = jumpStrength * jumpM;
     }
 
-    // Gravity stuff (unchanged)
     if (inAir)
     {
         velocityY += gravity;
@@ -599,7 +665,8 @@ void Main_Menu::movement()
     }
 }
 
-
+/*A function that determines where the laundry piles spawn */
+/*Written by Michael using AI to debug when needed.*/
 void Main_Menu::piles()
 {
     for (int i = 0; i < numPiles; i++)
@@ -610,8 +677,8 @@ void Main_Menu::piles()
             pileX[i] = 320 + (Random.RandInt() % 150);
     }
 }
-
-
+/*The function that handles the player colliding with the laundry piles and people.*/
+/*Written by Faiza using AI to debug when needed.*/
 void Main_Menu::collisions()
 {
     for (int i = 0; i < NUM_PILES; i++)
@@ -644,6 +711,8 @@ void Main_Menu::collisions()
     }
 }
 
+/*A function that determines where the people spawn*/
+/*Written by Michael using AI to debug when needed.*/
 void Main_Menu::people()
 {
     for (int i = 0; i < numPeople; i++)
@@ -656,6 +725,8 @@ void Main_Menu::people()
 }
 
 
+/*The function that handles the falling, landing, and clearing with respawning the spilled detergent obstacle.*/
+/*Written by Michael using AI to debug when needed.*/
 void Main_Menu::updateFallingObject(float deltaTime)
 {
     if (!fallLanded)
@@ -667,42 +738,50 @@ void Main_Menu::updateFallingObject(float deltaTime)
         if (fallY + fallR >= groundY)
         {
             fallLanded = true;
-            fallY = groundY - fallRectH;  // snap rectangle to ground
-            fallTimer = 0.0f;             // start timer
+            fallY = groundY - fallRectH;  
+            fallTimer = 0.0f;            
         }
     }
     else
     {
-        // rectangle timer
+       
         fallTimer += deltaTime;
 
-        if (fallTimer >= 4.0f) // 4 seconds duration
+        if (fallTimer >= 4.0f) 
         {
-            // respawn a new circle at the top
-            fallX = Random.RandInt() % 300 + 10; // random X
-            fallY = 10;                         // start above screen
+            
+            fallX = Random.RandInt() % 300 + 10; 
+            fallY = 10;                         
             fallLanded = false;
             fallTimer = 0.0f;
         }
     }
 }
 
+/*The function that handles drawing the spilled launrdry detergent when falling and landed.*/
+/*Written by Michael using AI to debug when needed.*/
 void Main_Menu::drawFallingObject()
 {
     LCD.SetFontColor(BLACK);
 
     if (!fallLanded)
     {
-        // draw the falling circle
+       
         LCD.DrawCircle(fallX, fallY, fallR);
     }
     else
     {
-        // draw rectangle after landing
+  
         LCD.FillRectangle(fallX - fallRectW/2, fallY, fallRectW, fallRectH);
     }
 }
 
+
+/*The function that handles keeping track of the player's score */
+/*It checks if the player reached to a machine on time or if they missed it.*/
+/*It then updates the loads, load streak, and misses accordingly*/
+/*Also handles the selection of a "open" machine by random and close it after a certain time.*/
+/*Written by Faiza using AI to debug when needed.*/
 void Main_Menu::score_keeping(float deltaTime)
 {
     const int NUM_MACHINES = 8;
@@ -714,10 +793,10 @@ void Main_Menu::score_keeping(float deltaTime)
     int machineW = 30;
     int machineH = 40;
 
-    // --- Update timer ---
+
     machineTimer += deltaTime;
 
-    // --- Check if player interacted with active machine ---
+ 
     bool touching =
         !(playerX + playerW < machineX[activeMachine] ||
           machineX[activeMachine] + machineW < playerX ||
@@ -728,11 +807,11 @@ void Main_Menu::score_keeping(float deltaTime)
     {
         loads++;
         loads_streak++;
-        activeMachine = Random.RandInt() % NUM_MACHINES; // pick new machine
+        activeMachine = Random.RandInt() % NUM_MACHINES; 
         machineTimer = 0.0f;
     }
 
-    // --- Timer expires without interaction ---
+
     if (machineTimer >= machineDuration)
     {
         misses++;
@@ -741,7 +820,7 @@ void Main_Menu::score_keeping(float deltaTime)
         machineTimer = 0.0f;
     }
 
-    // --- Draw machines ---
+
     for (int i = 0; i < NUM_MACHINES; i++)
     {
         if (i == activeMachine)
@@ -757,6 +836,12 @@ void Main_Menu::score_keeping(float deltaTime)
     }
 }
 
+
+
+/*This is the difficutly module that all of the gameplay functions will use*/
+/*It sets everything from player movement (small tweaks), to how fast the people and laundry piles move.*/
+/*This also edits how long you have to reach a machine, and how many people and laundry piles spawn at once.*/
+/*Written by Michael using AI to debug when needed.*/
 void Main_Menu::setDifficulty(std::string mode)
 {
     if (mode == "chill") {
@@ -767,6 +852,8 @@ void Main_Menu::setDifficulty(std::string mode)
         machineDuration = 5.0f;
         numPiles = 2;
         numPeople = 1;
+
+
     } else if (mode == "normal") {
         playerSpeed = 4.0f;
         jumpMultiplier = 0.9f;
@@ -775,6 +862,8 @@ void Main_Menu::setDifficulty(std::string mode)
         machineDuration = 4.0f;
         numPiles = 3;
         numPeople = 2;
+
+
     } else if (mode == "pain") {
         playerSpeed = 5.0f;
         jumpMultiplier = 0.8f;
@@ -787,6 +876,11 @@ void Main_Menu::setDifficulty(std::string mode)
 }
 
 
+
+/*The function that handles the easy gamemode.*/
+/*It calls in the functions required for movement, obstacles, scorekeeping, and washing machines.*/
+/*It ends in three minutes and has a builtin score keeper.*/
+/*Written by Faiza using AI to debug when needed.*/
 void Main_Menu::chill_mode()
 {
     setDifficulty("chill");
@@ -882,7 +976,10 @@ void Main_Menu::chill_mode()
     }
 }
 
-
+/*The function that handles the normal gamemode.*/
+/*It calls in the functions required for movement, obstacles, scorekeeping, and washing machines.*/
+/*It ends in two minutes and has a builtin score keeper.*/
+/*Written by Michael using AI to debug when needed.*/
 void Main_Menu::normal_mode()
 {
     setDifficulty("normal");
@@ -929,7 +1026,7 @@ void Main_Menu::normal_mode()
 
        
 
-        // --- Update game state ---
+       
         movement();
         updateFallingObject(deltaTime);
         collisions();
@@ -978,6 +1075,11 @@ void Main_Menu::normal_mode()
     }
 }
 
+
+/*The function that handles the hard gamemode.*/
+/*It calls in the functions required for movement, obstacles, scorekeeping, and washing machines.*/
+/*It ends in one minutes and has a builtin score keeper.*/
+/*Written by Michael using AI to debug when needed.*/
 void Main_Menu::pain_mode()
 {
     setDifficulty("pain");
